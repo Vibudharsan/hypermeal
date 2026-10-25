@@ -1,0 +1,21 @@
+# Private data: diary, provider keys, logs
+data/diary.sqlite3
+data/*.sqlite3*
+data/settings.private.json
+data/*.tmp
+*.log
+
+# Signing key for the Android APK (keep it local; it signs updates)
+android/draft-signing.jks
+*.jks
+
+# Build output and binaries (publish APKs as release assets instead)
+android/build/
+*.apk
+*.idsig
+releases/SHA256.txt
+
+# Python and test leftovers
+__pycache__/
+*.pyc
+tests/tmp*/

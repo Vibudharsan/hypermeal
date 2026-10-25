@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HyperMeal | Wellness Dashboard</title>
+<style>
+:root { --bg: #fbfbfb; --sidebar: #343434; --coral: #979797; --mint: #eeeeee; --text: #333333; --muted: #6c6c6c; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; min-height: 100vh; }
+[hidden] { display: none !important; }
+aside { width: 240px; background: var(--sidebar); color: white; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+main { flex: 1; padding: 2rem; overflow-y: auto; }
+.card { background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid #eee; margin-bottom: 1.5rem; }
+.grid { display: grid; gap: 1rem; }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.pill { background: var(--mint); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; }
+.eyebrow { text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.7rem; color: var(--muted); }
+.metric { font-size: 1.5rem; font-weight: bold; }
+.field { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+button { cursor: pointer; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; background: var(--sidebar); color: white; }
+button.secondary { background: var(--coral); }
+input, select, textarea { padding: 0.6rem; border: 1px solid #ddd; border-radius: 4px; }
+.stack { display: flex; flex-direction: column; gap: 0.5rem; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+</style><link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/theme.css"><script src="/theme.js"></script></head>
+<body>
+
+<aside>
+    <h2>HyperMeal</h2>
+    <nav class="stack">
+        <button data-page="today">Today</button>
+        <button data-page="food">Food</button>
+        <button data-page="movement">Movement</button>
+        <button data-page="progress">Progress</button>
+        <button data-page="coach">Coach</button>
+        <button data-page="community">Community</button>
+        <button data-page="profile">Profile</button>
+    </nav>
+</aside>
+
+<main>
+    <header>
+        <h1 id="page-title">Today</h1>
+        <input type="date" id="day">
+        <button id="quick-meal">+ Quick Meal</button>
+    </header>
+
+    <section class="page" id="page-today">
+        <div class="card">
+            <h2>Small choices. Stronger days.</h2>
+            <svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#eeeeee"/><path d="M30 60 Q50 80 70 60" stroke="#979797" fill="none" stroke-width="4"/></svg>
+            <button data-go="food">Log Food</button>
+        </div>
+        <div class="grid grid-4">
+            <div class="card"><div class="eyebrow">Intake</div><div id="intake-value" class="metric">—</div></div>
+            <div class="card"><div class="eyebrow">Active calories</div><div id="burn-value" class="metric">—</div></div>
+            <div class="card"><div class="eyebrow">To intake goal</div><div id="remaining-value" class="metric">—</div></div>
+            <div class="card"><div class="eyebrow">Daily habits</div><div id="score-value" class="metric">—</div></div>
+        </div>
+        <div id="energy-panel" class="card"></div>
+        <div id="routine-preview" class="card"></div>
+        <div id="macro-panel" class="card"></div>
+        <div id="today-meals" class="card"></div>
+        <div id="setup-hint" class="card">Setup incomplete <button data-go="profile">Complete Profile</button></div>
+        <div class="card">
+            <div id="water-value">0ml</div>
+            <button data-water="250">+250ml</button>
+            <button data-water="500">+500ml</button>
+            <button id="reset-water">Reset</button>
+            <input type="checkbox" id="complete-day"><label for="complete-day">My food log is complete for this day</label>
+        </div>
+    </section>
+
+    <section class="page" id="page-food" hidden>
+        <div class="card">
+            <input type="file" id="meal-photo" accept="image/*">
+            <input type="checkbox" id="photo-consent"><label for="photo-consent">Send this photo to Google for suggestions</label>
+            <button id="scan-photo">Scan Photo</button>
+            <button id="open-camera" class="secondary">Use camera</button>
+            <div id="scan-result"></div>
+        </div>
+        <div class="card">
+            <input type="text" id="meal-title" value="Lunch">
+            <input type="search" id="food-search" placeholder="Search 220+ foods, e.g. idli, paneer, apple">
+            <select id="food-select"></select>
+            <input type="number" id="food-grams" min="1" value="100">
+            <button id="add-food">Add</button>
+            <button id="add-custom">Custom</button>
+            <div id="meal-items"></div>
+            <div id="meal-estimate"></div>
+            <input type="checkbox" id="meal-confirm"><label for="meal-confirm">I reviewed foods and portions</label>
+            <button id="save-meal" class="secondary">Save Meal</button>
+        </div>
+        <div id="diary-list" class="card"></div>
+        <div id="my-foods" class="card"></div>
+    </section>
+
+    <section class="page" id="page-movement" hidden>
+        <div class="card">
+            <form id="workout-form">
+                <input name="name" required placeholder="Activity name">
+                <input name="minutes" type="number" min="1" max="600" value="30">
+                <input name="active_kcal" type="number" min="0" max="5000" value="100">
+                <select name="type"><option>walk</option><option>strength</option><option>cycle</option><option>yoga</option><option>other</option></select>
+                <button type="submit">Log activity</button>
+            </form>
+        </div>
+        <div id="routine-list" class="card"></div>
+        <div id="activity-list" class="card"></div>
+    </section>
+
+    <section class="page" id="page-progress" hidden>
+        <div class="card">
+            <div id="current-weight"></div><div id="current-bmi"></div><div id="forecast-weight"></div>
+            <svg id="weight-chart" viewBox="0 0 700 240" role="img" aria-label="Actual and predicted weight"></svg>
+            <div id="forecast-detail"></div>
+        </div>
+        <form id="weight-form" class="card">
+            <input type="date" name="date" required>
+            <input type="number" name="weight_kg" min="20" max="400" step=".1" required>
+            <button type="submit">Record check-in</button>
+        </form>
+        <div id="weight-history" class="card"></div>
+        <button id="make-forecast">Save 30-day forecast</button>
+    </section>
+
+    <section class="page" id="page-coach" hidden>
+        <div class="card">
+            <div id="chat-history"></div>
+            <form id="chat-form">
+                <textarea name="message" required maxlength="2000"></textarea>
+                <input type="checkbox" name="allow_cloud" required><label>Send totals to Google</label>
+                <button type="submit">Ask HyperMeal</button>
+            </form>
+            <button data-prompt>Balanced breakfast?</button>
+            <button data-prompt>Protein goals?</button>
+            <button data-prompt>Hydration tips?</button>
+        </div>
+    </section>
+
+    <section class="page" id="page-community" hidden>
+        <form id="post-form" class="card">
+            <input name="author" required maxlength="50">
+            <select name="topic"><option>Meal ideas</option><option>Movement</option><option>Small wins</option><option>Questions</option></select>
+            <textarea name="body" required maxlength="2000"></textarea>
+            <button type="submit">Share</button>
+        </form>
+        <div id="community-posts" class="card"></div>
+    </section>
+
+    <section class="page" id="page-profile" hidden>
+        <form id="profile-form" class="card">
+            <input name="name" required>
+            <input name="age" type="number" min="20" max="100" required>
+            <input name="height_cm" type="number" min="100" max="230" required>
+            <input name="weight_kg" type="number" min="20" max="400" step=".1" required>
+            <input name="calorie_goal" type="number" value="2200">
+            <input name="baseline_kcal" type="number" value="2000">
+            <input name="activity_goal" type="number" value="30">
+            <input name="water_goal" type="number" value="2000">
+            <input name="protein_goal" type="number" value="80">
+            <select name="goal"><option>maintain</option><option>build habits</option><option>gain</option><option>lose</option></select>
+            <button type="submit">Save profile</button>
+        </form>
+        <div class="card">
+            <div id="connection-status"></div>
+            <input type="password" id="gemini-key">
+            <button id="save-gemini">Enable AI</button>
+            <input type="password" id="strava-token">
+            <button id="connect-strava">Connect Strava</button>
+            <button id="sync-strava">Sync</button>
+            <button id="disconnect-strava">Disconnect</button>
+            <input type="file" id="fitness-file" accept=".csv">
+            <button id="import-fitness">Import CSV</button>
+            <a href="/api/fitness/template">Download Template</a>
+        </div>
+    </section>
+</main>
+
+<div id="toast" role="status" hidden></div>
+<dialog id="camera-dialog" aria-label="Scan food with camera">
+    <div class="camera-view"><video id="camera-video" autoplay playsinline muted></video><div class="camera-guide"></div></div>
+    <p id="camera-status" class="small">Point your camera at the plate.</p>
+    <label class="check"><input type="checkbox" id="camera-consent"> Send this photo to Google for suggestions</label>
+    <div class="camera-actions">
+        <button id="camera-close" class="text-button">Cancel</button>
+        <button id="camera-shoot" class="camera-shutter" aria-label="Take photo"></button>
+        <button id="camera-flip" class="text-button">Flip</button>
+    </div>
+</dialog>
+
+<dialog id="custom-dialog">
+    <form id="custom-form">
+        <input name="name" required>
+        <input name="grams" type="number" value="100">
+        <input name="kcal" type="number" required>
+        <input name="protein" type="number" required>
+        <input name="carbs" type="number" required>
+        <input name="fat" type="number" required>
+        <input name="source" value="Package label">
+        <input name="save_food" type="checkbox" checked>
+        <button type="submit">Add food</button>
+        <button type="button" id="close-custom">Cancel</button>
+    </form>
+</dialog>
+
+<script src="/app.js"></script>
+</body>
+</html>
+
